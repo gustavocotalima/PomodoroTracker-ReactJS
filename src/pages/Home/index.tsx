@@ -26,6 +26,7 @@ const newCycleFormValidationSchema = zod.object({
 type NewCycleFormData = zod.infer<typeof newCycleFormValidationSchema>
 
 export function Home() {
+  document.title = 'Ignite Time'
   const { activeCycle, createNewCycle, interruptActiveCycle } =
     useContext(CyclesContext)
 

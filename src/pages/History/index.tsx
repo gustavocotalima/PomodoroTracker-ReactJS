@@ -6,7 +6,7 @@ import ptBR from 'date-fns/locale/pt-BR'
 
 export function History() {
   const { cycles } = useContext(CyclesContext)
-
+  document.title = 'Ignite Time - Histórico'
   return (
     <HistoryContainer>
       <h1>Meu histórico</h1>
