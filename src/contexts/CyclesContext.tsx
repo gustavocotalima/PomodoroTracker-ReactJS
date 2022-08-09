@@ -1,5 +1,17 @@
-import { createContext, ReactNode, useReducer, useState } from 'react'
-import { Cycle, cyclesReducer } from '../reducers/cycles'
+import { differenceInSeconds } from 'date-fns'
+import {
+  createContext,
+  ReactNode,
+  useEffect,
+  useReducer,
+  useState,
+} from 'react'
+import {
+  createNewCycleAction,
+  interruptActiveCycleAction,
+  setActiveCycleAsFinishedAction,
+} from '../reducers/cycles/actions'
+import { Cycle, cyclesReducer } from '../reducers/cycles/reducer'
 
 interface CreateCycleData {
   task: string
@@ -25,14 +37,35 @@ interface CyclesContextProviderProps {
 export function CyclesContextProvider({
   children,
 }: CyclesContextProviderProps) {
-  const [cyclesState, dispatch] = useReducer(cyclesReducer, {
-    cycles: [],
-    activeCycle: undefined,
-  })
-
-  const [amountSecondsPassed, setAmountSecondsPassed] = useState(0)
+  const [cyclesState, dispatch] = useReducer(
+    cyclesReducer,
+    {
+      cycles: [],
+      activeCycle: undefined,
+    },
+    () => {
+      const storedStateAsJSON = localStorage.getItem(
+        '@ignite-timer:cycles-state-1.0.0',
+      )
+      if (storedStateAsJSON) {
+        return JSON.parse(storedStateAsJSON)
+      }
+    },
+  )
 
   const { cycles, activeCycle } = cyclesState
+
+  const [amountSecondsPassed, setAmountSecondsPassed] = useState(() => {
+    if (activeCycle)
+      return differenceInSeconds(new Date(), new Date(activeCycle.startDate))
+    return 0
+  })
+
+  useEffect(() => {
+    const stateJSON = JSON.stringify(cyclesState)
+
+    localStorage.setItem('@ignite-timer:cycles-state-1.0.0', stateJSON)
+  }, [cyclesState])
 
   function createNewCycle(data: CreateCycleData) {
     const newCycle: Cycle = {
@@ -41,32 +74,17 @@ export function CyclesContextProvider({
       minutesAmount: data.minutesAmount,
       startDate: new Date(),
     }
-    dispatch({
-      type: 'CREATE_NEW_CYCLE',
-      payload: {
-        newCycle,
-      },
-    })
+    dispatch(createNewCycleAction(newCycle))
     setAmountSecondsPassed(0)
   }
 
   function interruptActiveCycle() {
-    dispatch({
-      type: 'INTERRUPT_ACTIVE_CYCLE',
-      payload: {
-        activeCycle,
-      },
-    })
+    dispatch(interruptActiveCycleAction())
     setAmountSecondsPassed(0)
   }
 
   function setActiveCycleAsFinished() {
-    dispatch({
-      type: 'SET_ACTIVE_CYCLE_AS_FINISHED',
-      payload: {
-        data: activeCycle,
-      },
-    })
+    dispatch(setActiveCycleAsFinishedAction())
   }
 
   function setSecondsPassed(seconds: number) {
