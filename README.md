@@ -1,6 +1,6 @@
 # PomodoroTracker-ReactJS
 
-Projeto feito em ReactJS de um Pomodoro, acompanhando o capitulo 2 da trilha de React do Ignite da Rocketseat.
+Projeto feito em ReactJS de um Pomodoro, acompanhando o projeto 2 da trilha de React do Ignite da Rocketseat.
 
 ## Para executar a aplicação
 
